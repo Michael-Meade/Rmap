@@ -1,9 +1,7 @@
-ruby nmap.rb --H
 <h1 align="center">Rmap</h1>
 <div align="center">
   
-**
-[About](https://github.com/Michael-Meade/Rmap/blob/main/README.md#About) • 
+**[About](https://github.com/Michael-Meade/Rmap/blob/main/README.md#About) • 
 [Installing gems](https://github.com/Michael-Meade/Rmap/blob/main/README.md#Installing-gems) • 
 [Installation](https://github.com/Michael-Meade/Rmap/blob/main/README.md#Installation) • 
 [Help](https://github.com/Michael-Meade/Rmap/blob/main/README.md#Help-Menu) •
