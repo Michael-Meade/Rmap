@@ -34,84 +34,58 @@ o = {
   "spoof_mac": nil
 }
 OptionParser.new do |parser|
- parser.on('--syn [[SYN]', "SYN scan") do |m|
-  o[:syn] = M
- end
- parser.on('--outfile [OUTFILE]', "The outfile file. By default the file is named: scan.xml") do |m|
-  o[:outfile] = m
- end
- parser.on('--osprint', TrueClass, "os fingerprint scan") do |m|
-  o[:osprint] = false
- end
- parser.on("--service", TrueClass, "Perform a Service scan") do |m|
-  o[:service] = false
- end
- parser.on("--target [TARGET]", "Target IP - ( basic scan )") do |m|
-  o[:target] = m
- end
- parser.on("--ports", Array, "The ports it should scan") do |m|
-  o[:ports] = m
- end
- parser.on('--xml [XML]', "Parse & print out the content of the XML file.") do |m|
-  o[:xml] = m
- end
- parser.on('--banner [BANNER]', "Banner scan the target") do |m|
-  o[:banner]    = m
- end
- parser.on('--wordpress [WORDPRESS]', "Wordpress enum") do |m|
-  o[:wordpress] = m
- end
- parser.on('--phpversion [PHPVERSION]', "Attempt to get get what PHP version the site is running.") do |m|
-  o[:phpversion] = m
- end
- parser.on('--btcinfo [BTCINFO]', "Get information about a Bitcoin node") do |m|
-  o[:btcinfo] = m
- end
- parser.on('--dnsbrute [DNSBRUTE', "DNS brute a domain.") do |m|
-    o[:dnsbrute] = m
- end
- parser.on('--wpusers [WPUSERS]', "Find Wordpress users") do |m|
-    o[:wpusers] = m
- end
- parser.on('--affiliateid [AFFILIATEID]', "Grabs affiliate network IDs (e.g. Google AdSense or Analytics, Amazon Associates, etc.) from a web page. These can be used to identify pages with the same owner.") do |m|
- o[:affiliateid] = m
- end
- parser.on('--spoofmac [SPOOFMAC]', "spoof Mac") do |m|
-    o[:spoofmac] = m
- end
- parser.on('--ack [ACK]', "Perform a ACK scan") do |m|
-    o[:ack] = m
- end
- parser.on('--udp [UDP]', "Perform a UDP scan") do |m|
-    o[:udp] = m
- end
- parser.on('--connect [CONNECT]', "Perform a CONNECT scan") do |m|
-    o[:connect] = m
- end
- parser.on('--null [NULL]', "Perform a Null scan") do |m|
-    o[:null] = m
- end
- parser.on('--fin [FIN]', "Perform a fin scan") do |m|
-    o[:fin] = m
- end
- parser.on('--xmas [XMAS]', "Perform a XMAS scan") do |m|
-    o[:xmas] = m
- end
- parser.on('--window [WINDOW]', "Perform a window scan") do |m|
-    o[:window] = m
- end
- parser.on('--maimon [MAIMON]', "Perform a maimon scan") do |m|
-    o[:maimon] = m
- end
- parser.on('--echo [ECHO]', "Perform a ECHO scan") do |m|
-    o[:echo] = m
- end
- parser.on('--idle [IDLE]', "Perform a IDLE scan") do |m|
-    o[:idle] = m
- end
- parser.on('--openredirect [OPENREDIRECT]', "Open redirect scan") do |m|
-    o[:openredirect] = m
- end
+ parser.on('--syn [[SYN]', "SYN scan") { |m| o[:syn] = M }
+
+ parser.on('--outfile [OUTFILE]', "The outfile file. By default the file is named: scan.xml") { |m| o[:outfile] = m }
+
+ parser.on('--osprint', TrueClass, "os fingerprint scan") { |m| o[:osprint] = false }
+
+ parser.on("--service", TrueClass, "Perform a Service scan") { |m| o[:service] = false }
+
+ parser.on("--target [TARGET]", "Target IP - ( basic scan )") { |m| o[:target] = m }
+
+ parser.on("--ports", Array, "The ports it should scan") { |m| o[:ports] = m }
+
+ parser.on('--xml [XML]', "Parse & print out the content of the XML file.") { |m| o[:xml] = m }
+ 
+ parser.on('--banner [BANNER]', "Banner scan the target") { |m| o[:banner]  = m }
+
+ parser.on('--wordpress [WORDPRESS]', "Wordpress enum") { |m| o[:wordpress] = m }
+
+ parser.on('--phpversion [PHPVERSION]', "Attempt to get get what PHP version the site is running.") { |m| o[:phpversion] = m }
+
+ parser.on('--btcinfo [BTCINFO]', "Get information about a Bitcoin node") { |m| o[:btcinfo] = m}
+
+ parser.on('--dnsbrute [DNSBRUTE', "DNS brute a domain.") { |m| o[:dnsbrute] = m }
+
+ parser.on('--wpusers [WPUSERS]', "Find Wordpress users") { |m| o[:wpusers] = m }
+
+ parser.on('--affiliateid [AFFILIATEID]', "Grabs affiliate network IDs (e.g. Google AdSense or Analytics, Amazon Associates, etc.) from a web page. These can be used to identify pages with the same owner.") { |m| o[:affiliateid] = m }
+
+ parser.on('--spoofmac [SPOOFMAC]', "spoof Mac") { |m| o[:spoofmac] = m }
+
+ parser.on('--ack [ACK]', "Perform a ACK scan") { |m|  o[:ack] = m }
+
+ parser.on('--udp [UDP]', "Perform a UDP scan") { |m| o[:udp] = m } 
+
+ parser.on('--connect [CONNECT]', "Perform a CONNECT scan") { |m| o[:connect] = m }
+
+ parser.on('--null [NULL]', "Perform a Null scan") { |m| o[:null] = m }
+
+ parser.on('--fin [FIN]', "Perform a fin scan") { |m| o[:fin] = m }
+
+ parser.on('--xmas [XMAS]', "Perform a XMAS scan") { |m| o[:xmas] = m }
+
+ parser.on('--window [WINDOW]', "Perform a window scan") { |m| o[:window] = m }
+
+ parser.on('--maimon [MAIMON]', "Perform a maimon scan") { |m| o[:maimon] = m }
+
+ parser.on('--echo [ECHO]', "Perform a ECHO scan") { |m| o[:echo] = m }
+
+ parser.on('--idle [IDLE]', "Perform a IDLE scan") { |m| o[:idle] = m }
+
+ parser.on('--openredirect [OPENREDIRECT]', "Open redirect scan") { |m| o[:openredirect] = m }
+
 end.parse!
 def scan(nse: "", target: "", out: "", port: nil, spoof_mac: nil)
   Nmap::Program.scan do |nmap|
