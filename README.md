@@ -72,6 +72,11 @@ ruby nmap.rb --xml scan.xml
 ruby nmap.rb --btcinfo 91.12.218.35
 ```
 
+## Php version
+
+```ruby
+ruby rmap.rb --phpversion example.com
+```
 # License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

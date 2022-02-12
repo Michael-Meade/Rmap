@@ -62,7 +62,7 @@ OptionParser.new do |parser|
   o[:wordpress] = m
  end
  parser.on('--phpversion [PHPVERSION]', "Attempt to get get what PHP version the site is running.") do |m|
-  o[:wordpress] = m
+  o[:phpversion] = m
  end
  parser.on('--btcinfo [BTCINFO]', "Get information about a Bitcoin node") do |m|
   o[:btcinfo] = m
