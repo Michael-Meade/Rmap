@@ -73,10 +73,19 @@ ruby nmap.rb --btcinfo 91.12.218.35
 ```
 
 ## Php version
-
 ```ruby
 ruby rmap.rb --phpversion example.com
 ```
+### DNS brute
+```ruby
+ruby rmap.rb --dnsbrute example.com
+```
+### xmas scan
+```ruby
+sudo ruby rmap.rb --xmas example.com
+```
+Requires sudo permissions
+
 # License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

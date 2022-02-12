@@ -109,6 +109,9 @@ OptionParser.new do |parser|
  parser.on('--idle [IDLE]', "Perform a IDLE scan") do |m|
     o[:idle] = m
  end
+ parser.on('--openredirect [OPENREDIRECT]', "Open redirect scan") do |m|
+    o[:openredirect] = m
+ end
 end.parse!
 def scan(nse: "", target: "", out: "", port: nil, spoof_mac: nil)
   Nmap::Program.scan do |nmap|
@@ -183,6 +186,7 @@ scan(nse: "http-wordpress-users", target: o[:wpusers], out: o[:outfile]) if !o[:
 
 scan(nse: "http-affiliate-id", target: o[:affiliateid], out: o[:outfile]) if !o[:affiliateid].nil?
 
+scan(nse: "http-open-redirect", target: o[:openredirect], out: o[:outfile]) if !o[:openredirect].nil?
 port_scan(ack: true, target: o[:ack], spoof_mac: o[:spoofmac]) if !o[:ack].nil?
 
 port_scan(syn: true, target: o[:syn], spoof_mac: o[:spoofmac]) if !o[:syn].nil?
