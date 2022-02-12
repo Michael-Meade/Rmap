@@ -86,6 +86,15 @@ OptionParser.new do |parser|
 
  parser.on('--openredirect [OPENREDIRECT]', "Open redirect scan") { |m| o[:openredirect] = m }
 
+ parser.on('--extractdomains [EXTRACTDOMAINS', "Extract domains from the xml file. Ran after --dnsbrute.") { |m| o[:extractdomains] = m}
+
+ parser.on('--wp [WP]', "Run a bunch of different Wordpress scans") { |m| o[:wp] = m}
+
+ parser.on('--smtpusers [SMTPUSERS]', "Attempts to enumerate the users on a SMTP server ") { |m| o[:smtpusers] = m}
+
+ parser.on('--smtpbrute [SMTPBRUTE]', "Performs brute force password auditing against SMTP servers") { |m| o[:smtpbrute] = m}
+
+
 end.parse!
 def scan(nse: "", target: "", out: "", port: nil, spoof_mac: nil)
   Nmap::Program.scan do |nmap|
@@ -117,6 +126,23 @@ def port_scan(ack: false, syn: false, connect:false, udp: false, null: false, fi
         nmap.targets         = target
         nmap.spoof_mac       = spoof_mac if !spoof_mac.nil?
     end 
+end
+def extract_domains(xml)
+    out = []
+    Nmap::XML.new(xml) do |xml|
+        xml.each_host do |host|
+          host.scripts.each do |name,output|
+            output.each_line { |line| out << line.split("-")[0].split("DNS Brute").shift.strip.to_s if !line.split("-")[0].split("DNS Brute").shift.strip.empty? }
+          end
+        end
+    end
+    File.open('subdomains.txt', 'w') { |f| f.write(out.join("\n")) }
+end
+def wp(domain)
+    scan(nse: "http-wordpress-enum", target: domain, out: "#{domain}-wp-enum.xml")
+    scan(nse: "http-wordpress-users", target: domain, out: "#{domain}-wp-users.xml")
+    scan(nse: "http-wordpress-brute", target: domain, out: "#{domain}-wp-brute.xml")
+    
 end
 if !o[:target].nil?
   Nmap::Program.scan do |nmap|
@@ -161,6 +187,11 @@ scan(nse: "http-wordpress-users", target: o[:wpusers], out: o[:outfile]) if !o[:
 scan(nse: "http-affiliate-id", target: o[:affiliateid], out: o[:outfile]) if !o[:affiliateid].nil?
 
 scan(nse: "http-open-redirect", target: o[:openredirect], out: o[:outfile]) if !o[:openredirect].nil?
+
+scan(nse: "smtp-enum-users", target: o[:smtpusers], out: o[:outfile]) if !o[:smtpusers].nil?
+
+scan(nse: "smtp-brute", target: o[:smtpbrute], out: o[:outfile]) if !o[:smtpbrute].nil?
+
 port_scan(ack: true, target: o[:ack], spoof_mac: o[:spoofmac]) if !o[:ack].nil?
 
 port_scan(syn: true, target: o[:syn], spoof_mac: o[:spoofmac]) if !o[:syn].nil?
@@ -184,3 +215,7 @@ port_scan(maimon: true, target: o[:maimon], spoof_mac: o[:spoofmac]) if !o[:maim
 port_scan(echo: true, target: o[:echo], spoof_mac: o[:spoofmac]) if !o[:echo].nil?
 
 port_scan(idle: true, target: o[:idle], spoof_mac: o[:spoofmac]) if !o[:idle].nil?
+
+extract_domains(o[:extractdomains]) if !o[:extractdomains].nil?
+
+wp(o[:wp]) if !o[:wp].nil?
