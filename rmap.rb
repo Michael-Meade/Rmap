@@ -94,6 +94,20 @@ OptionParser.new do |parser|
 
  parser.on('--smtpbrute [SMTPBRUTE]', "Performs brute force password auditing against SMTP servers") { |m| o[:smtpbrute] = m}
 
+ parser.on('--phpselfxss [PHPSELFXSS]', "This script crawls the webserver to create a list of PHP files and then sends an attack vector/probe to identify PHP_SELF  cross site scripting vulnerabilities") { |m| o[:phpselfxss] = m}
+
+parser.on('--vncinfo [VNCINFO]', "Queries a VNC server for its protocol version and supported security types.") { |m| o[:vncinfo] = m}
+
+parser.on('--enumsmb [ENUMSMB]', "Attempts to list shares") { |m| o[:enumsmb] = m}
+
+parser.on('--apachestatus [APACHESTATUS]', "Attempts to retrieve the server-status page for Apache webservers that have mod_status enabled.") { |m| o[:apachestatus] = m}
+
+parser.on('--drupalenum [DRUPALENUM]', "Enumerates the installed Drupal modules/themes by using a list of known modules and themes.") { |m| o[:drupalenum] = m}
+
+parser.on('--drupalusers [DRUPALUSERS]', "Enumerates Drupal users by exploiting an information disclosure vulnerability in Views, Drupal's most popular module.") { |m| o[:drupalusers] = m}
+
+parser.on('--httpenum [HTTPENUM]', "Enumerates directories used by popular web applications and servers") { |m| o[:httpenum] = m}
+
 
 end.parse!
 def scan(nse: "", target: "", out: "", port: nil, spoof_mac: nil)
@@ -142,7 +156,6 @@ def wp(domain)
     scan(nse: "http-wordpress-enum", target: domain, out: "#{domain}-wp-enum.xml")
     scan(nse: "http-wordpress-users", target: domain, out: "#{domain}-wp-users.xml")
     scan(nse: "http-wordpress-brute", target: domain, out: "#{domain}-wp-brute.xml")
-    
 end
 if !o[:target].nil?
   Nmap::Program.scan do |nmap|
@@ -191,6 +204,20 @@ scan(nse: "http-open-redirect", target: o[:openredirect], out: o[:outfile]) if !
 scan(nse: "smtp-enum-users", target: o[:smtpusers], out: o[:outfile]) if !o[:smtpusers].nil?
 
 scan(nse: "smtp-brute", target: o[:smtpbrute], out: o[:outfile]) if !o[:smtpbrute].nil?
+
+scan(nse: "http-phpself-xss", target: o[:phpselfxss], out: o[:outfile], port: [443, 80]) if !o[:phpselfxss].nil?
+
+scan(nse: "vnc-info", target: o[:vncinfo], out: o[:outfile]) if !o[:vncinfo].nil?
+
+scan(nse: "smb-enum-shares", target: o[:enumsmb], out: o[:outfile]) if !o[:enumsmb].nil?
+
+scan(nse: "http-apache-server-status", target: o[:apachestatus], out: o[:outfile]) if !o[:apachestatus].nil?
+
+scan(nse: "http-drupal-enum", target: o[:drupal], out: o[:outfile]) if !o[:drupal].nil?
+
+scan(nse: "http-drupal-enum-users", target: o[:drupalusers], out: o[:outfile]) if !o[:drupalusers].nil?
+
+scan(nse: "http-enum", target: o[:httpenum], out: o[:outfile]) if !o[:httpenum].nil?
 
 port_scan(ack: true, target: o[:ack], spoof_mac: o[:spoofmac]) if !o[:ack].nil?
 
