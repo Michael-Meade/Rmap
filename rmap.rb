@@ -34,7 +34,11 @@ o = {
   "spoof_mac": nil
 }
 OptionParser.new do |parser|
+<<<<<<< HEAD
  parser.on('--syn [[SYN]', "SYN scan") { |m| o[:syn] = m }
+=======
+ parser.on('--syn [SYN]', "SYN scan") { |m| o[:syn] = m }
+>>>>>>> 85396d7 (added more ports)
 
  parser.on('--outfile [OUTFILE]', "The outfile file. By default the file is named: scan.xml") { |m| o[:outfile] = m }
 
