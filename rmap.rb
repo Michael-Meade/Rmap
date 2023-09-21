@@ -29,16 +29,12 @@ o = {
   "osprint": true,
   "service": true,
   "outfile": "scan.xml",
-  "ports": [20,21,22,23,25,80,110,443,512,522,8080,1080],
+  "ports": [20,21,22,23,25,80,88,110,111,115,118,137,139,143,156,161,194,220,464,465,601,902,903,636,749,750,751,981,990,992,443,512,522,8080,8008,1080],
   "xml":    nil,
   "spoof_mac": nil
 }
 OptionParser.new do |parser|
-<<<<<<< HEAD
- parser.on('--syn [[SYN]', "SYN scan") { |m| o[:syn] = m }
-=======
  parser.on('--syn [SYN]', "SYN scan") { |m| o[:syn] = m }
->>>>>>> 85396d7 (added more ports)
 
  parser.on('--outfile [OUTFILE]', "The outfile file. By default the file is named: scan.xml") { |m| o[:outfile] = m }
 
