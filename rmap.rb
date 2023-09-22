@@ -83,6 +83,8 @@ OptionParser.new do |parser|
 
  parser.on('--maimon [MAIMON]', "Perform a maimon scan") { |m| o[:maimon] = m }
 
+ parser.on('--list [LIST]', "Perform a list scan") { |m| o[:list] = m }
+
  parser.on('--echo [ECHO]', "Perform a ECHO scan") { |m| o[:echo] = m }
 
  parser.on('--idle [IDLE]', "Perform a IDLE scan") { |m| o[:idle] = m }
@@ -107,13 +109,14 @@ parser.on('--apachestatus [APACHESTATUS]', "Attempts to retrieve the server-stat
 
 parser.on('--drupalenum [DRUPALENUM]', "Enumerates the installed Drupal modules/themes by using a list of known modules and themes.") { |m| o[:drupalenum] = m}
 
+parser.on('--normal',TrueClass, "save output as normal") { |m| o[:normal] = m}
+
 parser.on('--drupalusers [DRUPALUSERS]', "Enumerates Drupal users by exploiting an information disclosure vulnerability in Views, Drupal's most popular module.") { |m| o[:drupalusers] = m}
 
 parser.on('--httpenum [HTTPENUM]', "Enumerates directories used by popular web applications and servers") { |m| o[:httpenum] = m}
 end.parse!
 
-
-def scan(nse: "", target: "", out: "text.xml", port: nil, spoof_mac: nil, outnormal: "text.txt")
+def scan(nse: "", target: "", out: "text.xml", ports: nil, spoof_mac: nil, outnormal: "text.txt")
   Nmap::Command.run do |nmap|
     nmap.output_normal   = "t.txt"
     nmap.script          = nse
@@ -121,30 +124,36 @@ def scan(nse: "", target: "", out: "text.xml", port: nil, spoof_mac: nil, outnor
     nmap.skip_discovery  = true
     nmap.output_xml      = out
     nmap.spoof_mac       = spoof_mac if !spoof_mac.nil?
-    nmap.ports           = port.to_i if !port.nil?
+    nmap.ports           = ports.to_i if !ports.nil?
   end
 end
-def port_scan(ack: false, syn: false, connect:false, udp: false, null: false, fin: false, xmas: false, window: false, maimon: false, echo: false, idle: false, target: "", ports: [], out: "scan.xml", spoof_mac: nil, outnormal: "out.txt")
+def port_scan(ack: false, syn: false, connect:false, list: false, udp: false, null: false, fin: false, xmas: false, window: false, maimon: false, echo: false, idle: false, target: "", ports: [20,21,22,23,25,80,88,110,111,115,118,137,139,143,156,161,194,220,464,465,601,902,903,636,749,750,751,981,990,992,443,512,522,8080,8008,1080,8333,18080,28080,18081,28081,22556,11626], out: "scan.xml", spoof_mac: nil, outnormal: "out.txt")
     Nmap::Command.run do |nmap|
         nmap.ack_scan        = ack
+        nmap.output_xml      = out
         nmap.syn_scan        = syn
         nmap.connect_scan    = connect
         nmap.udp_scan        = udp
         nmap.null_scan       = null
         nmap.fin_scan        = fin
         nmap.xmas_scan       = xmas
+        n
         nmap.window_scan     = window
         nmap.maimon_scan     = maimon
-        nmap.idle_scan       = idle
-        nmap.service_scan    = true
-        nmap.os_fingerprint  = true
-        nmap.output_xml      = out
+        nmap.skip_discovery = false
         nmap.output_normal = outnormal
         nmap.verbose         = true
         nmap.ports           = ports
         nmap.targets         = target
         nmap.spoof_mac       = spoof_mac if !spoof_mac.nil?
     end 
+end
+def host_discovery(list: false, target: "", normal: false)
+  Nmap::Command.run do |nmap|
+    nmap.list            = list
+    nmap.targets         = target
+    nmap.output_normal   = "list_scan.txt"  
+  end
 end
 def extract_domains(txt,o)
   out =[]
@@ -266,6 +275,8 @@ port_scan(maimon: true, target: o[:maimon], spoof_mac: o[:spoofmac]) if !o[:maim
 port_scan(echo: true, target: o[:echo], spoof_mac: o[:spoofmac]) if !o[:echo].nil?
 
 port_scan(idle: true, target: o[:idle], spoof_mac: o[:spoofmac]) if !o[:idle].nil?
+
+host_discovery(list: true, target: o[:list]) if !o[:list].nil?
 
 wp(o[:wp]) if !o[:wp].nil?
 
