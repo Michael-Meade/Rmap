@@ -29,12 +29,15 @@ o = {
   "osprint": true,
   "service": true,
   "outfile": "scan.xml",
+  "outnormal": "out.txt",
   "ports": [20,21,22,23,25,80,88,110,111,115,118,137,139,143,156,161,194,220,464,465,601,902,903,636,749,750,751,981,990,992,443,512,522,8080,8008,1080,8333,18080,28080,18081,28081,22556,11626],
   "xml":    nil,
   "spoof_mac": nil
 }
 OptionParser.new do |parser|
  parser.on('--syn [SYN]', "SYN scan") { |m| o[:syn] = m }
+
+ parser.on('--outnormal [OUTNORMAL]', "The outnormal file.") { |m| o[:outnormal] = m }
 
  parser.on('--outfile [OUTFILE]', "The outfile file. By default the file is named: scan.xml") { |m| o[:outfile] = m }
 
@@ -107,11 +110,10 @@ parser.on('--drupalenum [DRUPALENUM]', "Enumerates the installed Drupal modules/
 parser.on('--drupalusers [DRUPALUSERS]', "Enumerates Drupal users by exploiting an information disclosure vulnerability in Views, Drupal's most popular module.") { |m| o[:drupalusers] = m}
 
 parser.on('--httpenum [HTTPENUM]', "Enumerates directories used by popular web applications and servers") { |m| o[:httpenum] = m}
-
-
 end.parse!
-def scan(nse: "", target: "", out: "", port: nil, spoof_mac: nil)
+def scan(nse: "", target: "", out: "text.xml", port: nil, spoof_mac: nil, outnormal: "text.txt")
   Nmap::Command.run do |nmap|
+    nmap.output_normal   = "t.txt"
     nmap.script          = nse
     nmap.targets         = target
     nmap.skip_discovery  = true
@@ -120,7 +122,7 @@ def scan(nse: "", target: "", out: "", port: nil, spoof_mac: nil)
     nmap.ports           = port.to_i if !port.nil?
   end
 end
-def port_scan(ack: false, syn: false, connect:false, udp: false, null: false, fin: false, xmas: false, window: false, maimon: false, echo: false, idle: false, target: "", ports: [], out: "scan.xml", spoof_mac: nil)
+def port_scan(ack: false, syn: false, connect:false, udp: false, null: false, fin: false, xmas: false, window: false, maimon: false, echo: false, idle: false, target: "", ports: [], out: "scan.xml", spoof_mac: nil, outnormal: "out.txt")
     Nmap::Command.run do |nmap|
         nmap.ack_scan        = ack
         nmap.syn_scan        = syn
@@ -134,29 +136,33 @@ def port_scan(ack: false, syn: false, connect:false, udp: false, null: false, fi
         nmap.idle_scan       = idle
         nmap.service_scan    = true
         nmap.os_fingerprint  = true
-        nmap.output_xml           = out
+        nmap.output_xml      = out
+        nmap.output_normal = outnormal
         nmap.verbose         = true
         nmap.ports           = ports
         nmap.targets         = target
         nmap.spoof_mac       = spoof_mac if !spoof_mac.nil?
     end 
 end
-def extract_domains(xml)
-    out = []
-    Nmap::XML.new(xml) do |xml|
-        xml.each_host do |host|
-          host.scripts.each do |name,output|
-            output.each_line { |line| out << line.split("-")[0].split("DNS Brute").shift.strip.to_s if !line.split("-")[0].split("DNS Brute").shift.strip.empty? }
-          end
-        end
+def extract_domains(txt)
+  out =[]
+  read = File.read(txt)
+  read.split("DNS Brute-force hostnames: ")[1].split("-").each do |l|
+    begin
+      subdomain = l.split("|")[1].strip.gsub("_", "").strip
+      if !out.include?(subdomain)
+        out << subdomain
+      end
+    rescue => e
     end
     File.open('subdomains.txt', 'w') { |f| f.write(out.join("\n")) }
+  end
 end
-def wp(domain)
+  def wp(domain)
     scan(nse: "http-wordpress-enum", target: domain, out: "#{domain}-wp-enum.xml")
     scan(nse: "http-wordpress-users", target: domain, out: "#{domain}-wp-users.xml")
     scan(nse: "http-wordpress-brute", target: domain, out: "#{domain}-wp-brute.xml")
-end
+  end
 if !o[:target].nil?
   Nmap::Command.run do |nmap|
     nmap.syn_scan        = o[:syn]
@@ -193,7 +199,7 @@ scan(nse: "http-php-version", target: o[:phpversion], out: o[:outfile]) if !o[:p
 
 scan(nse: "bitcoin-info", target: o[:btcinfo], out: o[:outfile], port: 8333) if !o[:btcinfo].nil?
 
-scan(nse: "dns-brute", target: o[:dnsbrute], out: o[:outfile]) if !o[:dnsbrute].nil?
+scan(nse: "dns-brute", target: o[:dnsbrute], outnormal: o[:outnormal]) if !o[:dnsbrute].nil?
     
 scan(nse: "http-wordpress-users", target: o[:wpusers], out: o[:outfile]) if !o[:wpusers].nil?
 
@@ -243,6 +249,6 @@ port_scan(echo: true, target: o[:echo], spoof_mac: o[:spoofmac]) if !o[:echo].ni
 
 port_scan(idle: true, target: o[:idle], spoof_mac: o[:spoofmac]) if !o[:idle].nil?
 
-extract_domains(o[:extractdomains]) if !o[:extractdomains].nil?
-
 wp(o[:wp]) if !o[:wp].nil?
+
+extract_domains(o[:extractdomains]) if !o[:extractdomains].nil?
