@@ -111,6 +111,8 @@ parser.on('--drupalusers [DRUPALUSERS]', "Enumerates Drupal users by exploiting 
 
 parser.on('--httpenum [HTTPENUM]', "Enumerates directories used by popular web applications and servers") { |m| o[:httpenum] = m}
 end.parse!
+
+
 def scan(nse: "", target: "", out: "text.xml", port: nil, spoof_mac: nil, outnormal: "text.txt")
   Nmap::Command.run do |nmap|
     nmap.output_normal   = "t.txt"
@@ -144,7 +146,7 @@ def port_scan(ack: false, syn: false, connect:false, udp: false, null: false, fi
         nmap.spoof_mac       = spoof_mac if !spoof_mac.nil?
     end 
 end
-def extract_domains(txt)
+def extract_domains(txt,o)
   out =[]
   read = File.read(txt)
   read.split("DNS Brute-force hostnames: ")[1].split("-").each do |l|
@@ -154,15 +156,31 @@ def extract_domains(txt)
         out << subdomain
       end
     rescue => e
+    
     end
-    File.open('subdomains.txt', 'w') { |f| f.write(out.join("\n")) }
   end
+    File.open("#{o[:dnsbrute]}-subdomains.txt", 'w') { |f| f.write(out.join("\n")) }
+
+  out =[]
+  read = File.read(txt)
+  begin
+    read.split("DNS Brute-force hostnames: ")[1].split("-").each do |l|
+        ips = l.split("-")[0].strip.split("|")[0].gsub("|", "").strip.split("\n\n#")[0]
+        if !out.include?(ips)
+          out << ips
+        end
+    end
+  rescue
+  end
+   out = out.compact
+   File.open("#{o[:dnsbrute]}-ips.txt", 'w') { |f| f.write(out.join("\n")) }
 end
-  def wp(domain)
-    scan(nse: "http-wordpress-enum", target: domain, out: "#{domain}-wp-enum.xml")
-    scan(nse: "http-wordpress-users", target: domain, out: "#{domain}-wp-users.xml")
-    scan(nse: "http-wordpress-brute", target: domain, out: "#{domain}-wp-brute.xml")
-  end
+def wp(domain)
+  scan(nse: "dns-brute", target: o[:dnsbrute], outnormal: o[:outnormal]) if !o[:dnsbrute].nil?
+  scan(nse: "http-wordpress-enum", target: domain, out: "#{domain}-wp-enum.xml")
+  scan(nse: "http-wordpress-users", target: domain, out: "#{domain}-wp-users.xml")
+  scan(nse: "http-wordpress-brute", target: domain, out: "#{domain}-wp-brute.xml")
+end
 if !o[:target].nil?
   Nmap::Command.run do |nmap|
     nmap.syn_scan        = o[:syn]
@@ -251,4 +269,4 @@ port_scan(idle: true, target: o[:idle], spoof_mac: o[:spoofmac]) if !o[:idle].ni
 
 wp(o[:wp]) if !o[:wp].nil?
 
-extract_domains(o[:extractdomains]) if !o[:extractdomains].nil?
+extract_domains(o[:extractdomains], o) if !o[:extractdomains].nil?
