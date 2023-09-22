@@ -84,6 +84,10 @@ ruby rmap.rb --dnsbrute example.com
 ```ruby
 sudo ruby rmap.rb --xmas example.com
 ```
+### Extract Subdomains and IPS
+```ruby
+ruby rmap.rb --extractdomains t.txt --dnsbrute google.com
+```
 Requires sudo permissions
 
 # License
