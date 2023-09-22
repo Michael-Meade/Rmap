@@ -1,5 +1,5 @@
 require 'optparse'
-require 'nmap/program'
+require 'nmap/command'
 require 'nmap/xml'
 require 'colorize'
 def banner
@@ -29,7 +29,7 @@ o = {
   "osprint": true,
   "service": true,
   "outfile": "scan.xml",
-  "ports": [20,21,22,23,25,80,88,110,111,115,118,137,139,143,156,161,194,220,464,465,601,902,903,636,749,750,751,981,990,992,443,512,522,8080,8008,1080],
+  "ports": [20,21,22,23,25,80,88,110,111,115,118,137,139,143,156,161,194,220,464,465,601,902,903,636,749,750,751,981,990,992,443,512,522,8080,8008,1080,8333,18080,28080,18081,28081,22556,11626],
   "xml":    nil,
   "spoof_mac": nil
 }
@@ -111,17 +111,17 @@ parser.on('--httpenum [HTTPENUM]', "Enumerates directories used by popular web a
 
 end.parse!
 def scan(nse: "", target: "", out: "", port: nil, spoof_mac: nil)
-  Nmap::Program.scan do |nmap|
+  Nmap::Command.run do |nmap|
     nmap.script          = nse
     nmap.targets         = target
     nmap.skip_discovery  = true
-    nmap.xml             = out
+    nmap.output_xml      = out
     nmap.spoof_mac       = spoof_mac if !spoof_mac.nil?
     nmap.ports           = port.to_i if !port.nil?
   end
 end
 def port_scan(ack: false, syn: false, connect:false, udp: false, null: false, fin: false, xmas: false, window: false, maimon: false, echo: false, idle: false, target: "", ports: [], out: "scan.xml", spoof_mac: nil)
-    Nmap::Program.scan do |nmap|
+    Nmap::Command.run do |nmap|
         nmap.ack_scan        = ack
         nmap.syn_scan        = syn
         nmap.connect_scan    = connect
@@ -134,7 +134,7 @@ def port_scan(ack: false, syn: false, connect:false, udp: false, null: false, fi
         nmap.idle_scan       = idle
         nmap.service_scan    = true
         nmap.os_fingerprint  = true
-        nmap.xml             = out
+        nmap.output_xml           = out
         nmap.verbose         = true
         nmap.ports           = ports
         nmap.targets         = target
@@ -158,11 +158,11 @@ def wp(domain)
     scan(nse: "http-wordpress-brute", target: domain, out: "#{domain}-wp-brute.xml")
 end
 if !o[:target].nil?
-  Nmap::Program.scan do |nmap|
+  Nmap::Command.run do |nmap|
     nmap.syn_scan        = o[:syn]
     nmap.service_scan    = o[:service]
     nmap.os_fingerprint  = o[:osprint]
-    nmap.xml             = o[:outfile]
+    nmap.output_xml           = o[:outfile]
     nmap.verbose         = true
     nmap.ports           = o[:ports]
     nmap.targets         = o[:target]
