@@ -63,7 +63,6 @@ sudo ruby nmap.rb --idle 127.0.0.1 --spoofmac 00:11:22:33:44:55
 ```
 
 ## Parse & print out xml file
-
 ```ruby
 ruby nmap.rb --xml scan.xml
 ```
@@ -87,6 +86,10 @@ sudo ruby rmap.rb --xmas example.com
 ### Extract Subdomains and IPS
 ```ruby
 ruby rmap.rb --extractdomains t.txt --dnsbrute google.com
+```
+### Wordpress
+```ruby
+ruby rmap.rb --wp google.com
 ```
 Requires sudo permissions
 
