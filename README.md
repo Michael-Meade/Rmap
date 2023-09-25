@@ -91,6 +91,10 @@ ruby rmap.rb --extractdomains t.txt --dnsbrute google.com
 ```ruby
 ruby rmap.rb --wp google.com
 ```
+### List scan saving output
+```ruby
+sudo ruby rmap.rb --list 192.168.1.1/24 --normal
+```
 Requires sudo permissions
 
 # License

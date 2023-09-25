@@ -91,7 +91,7 @@ OptionParser.new do |parser|
 
  parser.on('--openredirect [OPENREDIRECT]', "Open redirect scan") { |m| o[:openredirect] = m }
 
- parser.on('--extractdomains [EXTRACTDOMAINS', "Extract domains from the xml file. Ran after --dnsbrute.") { |m| o[:extractdomains] = m}
+ parser.on('--extractdomains [EXTRACTDOMAINS]', "Extract domains from the xml file. Ran after --dnsbrute.") { |m| o[:extractdomains] = m}
 
  parser.on('--wp [WP]', "Run a bunch of different Wordpress scans") { |m| o[:wp] = m}
 
@@ -114,9 +114,14 @@ parser.on('--normal',TrueClass, "save output as normal") { |m| o[:normal] = m}
 parser.on('--drupalusers [DRUPALUSERS]', "Enumerates Drupal users by exploiting an information disclosure vulnerability in Views, Drupal's most popular module.") { |m| o[:drupalusers] = m}
 
 parser.on('--httpenum [HTTPENUM]', "Enumerates directories used by popular web applications and servers") { |m| o[:httpenum] = m}
+
+parser.on('--grep [GREP]', "save scan greppeable") { |m| o[:grep] = m}
+
+parser.on('--arp [ARP]', "arp scan") { |m| o[:arp] = m}
+
 end.parse!
 
-def scan(nse: "", target: "", out: "text.xml", ports: nil, spoof_mac: nil, outnormal: "text.txt")
+def scan(nse: "", target: "", out: "#{target}.xml", ports: nil, spoof_mac: nil, outnormal: "text.txt", target_file: "",)
   Nmap::Command.run do |nmap|
     nmap.output_normal   = "t.txt"
     nmap.script          = nse
@@ -125,9 +130,10 @@ def scan(nse: "", target: "", out: "text.xml", ports: nil, spoof_mac: nil, outno
     nmap.output_xml      = out
     nmap.spoof_mac       = spoof_mac if !spoof_mac.nil?
     nmap.ports           = ports.to_i if !ports.nil?
+    nmap.target_file     = target_file
   end
 end
-def port_scan(ack: false, syn: false, connect:false, list: false, udp: false, null: false, fin: false, xmas: false, window: false, maimon: false, echo: false, idle: false, target: "", ports: [20,21,22,23,25,80,88,110,111,115,118,137,139,143,156,161,194,220,464,465,601,902,903,636,749,750,751,981,990,992,443,512,522,8080,8008,1080,8333,18080,28080,18081,28081,22556,11626], out: "scan.xml", spoof_mac: nil, outnormal: "out.txt")
+def port_scan(ack: false, syn: false, connect:false, target_file: "", list: false, udp: false, null: false, fin: false, xmas: false, window: false, maimon: false, echo: false, idle: false, target: "", ports: [20,21,22,23,25,80,88,110,111,115,118,137,139,143,156,161,194,220,464,465,601,902,903,636,749,750,751,981,990,992,443,512,522,8080,8008,1080,8333,18080,28080,18081,28081,22556,11626], out: "scan.xml", spoof_mac: nil, outnormal: "out.txt")
     Nmap::Command.run do |nmap|
         nmap.ack_scan        = ack
         nmap.output_xml      = out
@@ -137,7 +143,6 @@ def port_scan(ack: false, syn: false, connect:false, list: false, udp: false, nu
         nmap.null_scan       = null
         nmap.fin_scan        = fin
         nmap.xmas_scan       = xmas
-        n
         nmap.window_scan     = window
         nmap.maimon_scan     = maimon
         nmap.skip_discovery = false
@@ -145,14 +150,19 @@ def port_scan(ack: false, syn: false, connect:false, list: false, udp: false, nu
         nmap.verbose         = true
         nmap.ports           = ports
         nmap.targets         = target
+        nmap.target_file     = target_file
         nmap.spoof_mac       = spoof_mac if !spoof_mac.nil?
     end 
 end
-def host_discovery(list: false, target: "", normal: false)
+def host_discovery(list: false, target: "", target_file: "", normal: false, grep: "grep_scan.txt", arp: false, ports: [80,443])
   Nmap::Command.run do |nmap|
     nmap.list            = list
     nmap.targets         = target
-    nmap.output_normal   = "list_scan.txt"  
+    nmap.output_normal   = "list_scan.txt"
+    nmap.output_grepable = grep
+    nmap.arp_ping        = arp
+    nmap.target_file     = target_file
+    nmap.udp_discovery   = ports
   end
 end
 def extract_domains(txt,o)
@@ -277,6 +287,9 @@ port_scan(echo: true, target: o[:echo], spoof_mac: o[:spoofmac]) if !o[:echo].ni
 port_scan(idle: true, target: o[:idle], spoof_mac: o[:spoofmac]) if !o[:idle].nil?
 
 host_discovery(list: true, target: o[:list]) if !o[:list].nil?
+
+host_discovery(arp: true, target: o[:arp]) if !o[:arp].nil?
+
 
 wp(o[:wp]) if !o[:wp].nil?
 
