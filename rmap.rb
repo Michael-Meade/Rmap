@@ -37,6 +37,8 @@ o = {
 OptionParser.new do |parser|
  parser.on('--syn [SYN]', "SYN scan") { |m| o[:syn] = m }
 
+ parser.on('--targetfile [TARGETFILE]', "import ips to scan") { |m| o[:targetfile] = m }
+
  parser.on('--outnormal [OUTNORMAL]', "The outnormal file.") { |m| o[:outnormal] = m }
 
  parser.on('--outfile [OUTFILE]', "The outfile file. By default the file is named: scan.xml") { |m| o[:outfile] = m }
@@ -119,9 +121,11 @@ parser.on('--grep [GREP]', "save scan greppeable") { |m| o[:grep] = m}
 
 parser.on('--arp [ARP]', "arp scan") { |m| o[:arp] = m}
 
-end.parse!
+parser.on('--random [RANDOM]', "Random ips") { |m| o[:random] = m}
 
-def scan(nse: "", target: "", out: "#{target}.xml", ports: nil, spoof_mac: nil, outnormal: "text.txt", target_file: "",)
+end.parse!
+p
+def scan(nse: "", target: "", out: "#{target}.xml", ports: nil, spoof_mac: nil, outnormal: "text.txt", target_file: "")
   Nmap::Command.run do |nmap|
     nmap.output_normal   = "t.txt"
     nmap.script          = nse
@@ -133,7 +137,7 @@ def scan(nse: "", target: "", out: "#{target}.xml", ports: nil, spoof_mac: nil, 
     nmap.target_file     = target_file
   end
 end
-def port_scan(ack: false, syn: false, connect:false, target_file: "", list: false, udp: false, null: false, fin: false, xmas: false, window: false, maimon: false, echo: false, idle: false, target: "", ports: [20,21,22,23,25,80,88,110,111,115,118,137,139,143,156,161,194,220,464,465,601,902,903,636,749,750,751,981,990,992,443,512,522,8080,8008,1080,8333,18080,28080,18081,28081,22556,11626], out: "scan.xml", spoof_mac: nil, outnormal: "out.txt")
+def port_scan(ack: false, syn: false, connect:false, target_file: "ips.txt", list: false, udp: false, null: false, fin: false, xmas: false, window: false, maimon: false, echo: false, idle: false, target: "", ports: [20,21,22,23,25,80,88,110,111,115,118,137,139,143,156,161,194,220,464,465,601,902,903,636,749,750,751,981,990,992,443,512,522,8080,8008,1080,8333,18080,28080,18081,28081,22556,11626], out: "scan.xml", spoof_mac: nil, outnormal: "out.txt")
     Nmap::Command.run do |nmap|
         nmap.ack_scan        = ack
         nmap.output_xml      = out
@@ -151,17 +155,20 @@ def port_scan(ack: false, syn: false, connect:false, target_file: "", list: fals
         nmap.ports           = ports
         nmap.targets         = target
         nmap.target_file     = target_file
+
         nmap.spoof_mac       = spoof_mac if !spoof_mac.nil?
     end 
 end
-def host_discovery(list: false, target: "", target_file: "", normal: false, grep: "grep_scan.txt", arp: false, ports: [80,443])
+def host_discovery(list: false, target: nil, target_file: "", normal: false, grep: "grep_scan.txt", arp: false, ports: [80,443], random: 10000)
   Nmap::Command.run do |nmap|
     nmap.list            = list
     nmap.targets         = target
     nmap.output_normal   = "list_scan.txt"
+    nmap.random_targets = random
     nmap.output_grepable = grep
     nmap.arp_ping        = arp
     nmap.target_file     = target_file
+    nmap.service_scan = true
     nmap.udp_discovery   = ports
   end
 end
@@ -294,3 +301,5 @@ host_discovery(arp: true, target: o[:arp]) if !o[:arp].nil?
 wp(o[:wp]) if !o[:wp].nil?
 
 extract_domains(o[:extractdomains], o) if !o[:extractdomains].nil?
+
+host_discovery(random: o[:random],list:true ) if !o[:random].nil?
