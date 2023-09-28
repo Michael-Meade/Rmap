@@ -95,6 +95,10 @@ ruby rmap.rb --wp google.com
 ```ruby
 sudo ruby nmap.rb --ip 192.168.1.* --arp-ping
 ```
+### Null scan
+```ruby
+ruby nmap.rb --ip 192.168.1.* --null
+```
 ### List scan saving output
 ```ruby
 sudo ruby rmap.rb --list 192.168.1.1/24 --normal
