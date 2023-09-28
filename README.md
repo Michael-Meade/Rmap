@@ -81,7 +81,7 @@ ruby rmap.rb --dnsbrute example.com
 ```
 ### xmas scan
 ```ruby
-sudo ruby rmap.rb --xmas example.com
+sudo ruby nmap.rb --ip 192.168.1.* --xmas --normal xmas.txt
 ```
 ### Extract Subdomains and IPS
 ```ruby
@@ -90,6 +90,10 @@ ruby rmap.rb --extractdomains t.txt --dnsbrute google.com
 ### Wordpress
 ```ruby
 ruby rmap.rb --wp google.com
+```
+### Arp ping
+```ruby
+sudo ruby nmap.rb --ip 192.168.1.* --arp-ping
 ```
 ### List scan saving output
 ```ruby
