@@ -15,8 +15,8 @@ o = {
   "maimon": false,
   "arp_ping": false,
   "udp": false,
-  "ping": false,
-  "normal": 'out.txt'
+  "dnsbrute": false,
+  "ping": false
 }
 OptionParser.new do |parser|
   parser.on('--syn', TrueClass, 'SYN scan') { |m| o[:syn] = m }
@@ -30,12 +30,15 @@ OptionParser.new do |parser|
   parser.on('--arp-ping', TrueClass, 'arp ping') { |m| o[:arp_ping] = m }
   parser.on('--udp', TrueClass, 'Udp scan') { |m| o[:udp] = m }
   parser.on('--normal [NORMAL]', 'Output normal') { |m| o[:normal] = m }
-  parser.on('--ping',  TrueClass, 'ping scan') { |m| o[:ping] = m }
+  parser.on('--ping', TrueClass, 'ping scan') { |m| o[:ping] = m }
+  parser.on('--script [SCRIPT]', 'Scripts') { |m| o[:script] = m }
+  parser.on('--normal [NORMAL]', 'save output as normal') { |m| o[:normal] = m }
   parser.on('--ip IP', 'IP') { |m| o[:ip] = m }
 end.parse!
 
 Nmap::Command.run do |nmap|
-  nmap.syn_scan = o[:syn]
+  nmap.syn_scan      = o[:syn]
+  nmap.script        = o[:script]
   nmap.targets       = o[:ip]
   nmap.ack_scan      = o[:ack]
   nmap.null_scan     = o[:null]
@@ -48,4 +51,6 @@ Nmap::Command.run do |nmap|
   nmap.udp_scan      = o[:udp]
   nmap.output_normal = o[:normal]
   nmap.ping          = o[:ping]
+  nmap.output_normal = o[:normal]
 end
+

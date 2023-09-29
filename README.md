@@ -77,7 +77,7 @@ ruby rmap.rb --phpversion example.com
 ```
 ### DNS brute
 ```ruby
-ruby rmap.rb --dnsbrute example.com
+ruby nmap.rb --script dns-brute --ip google.com --normal google.com.txt
 ```
 ### xmas scan
 ```ruby
