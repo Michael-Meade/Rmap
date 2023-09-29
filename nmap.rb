@@ -16,8 +16,11 @@ o = {
   "arp_ping": false,
   "udp": false,
   "dnsbrute": false,
-  "ping": false
+  "ping": false,
+  "service": false
 }
+
+
 OptionParser.new do |parser|
   parser.on('--syn', TrueClass, 'SYN scan') { |m| o[:syn] = m }
   parser.on('--ack', TrueClass, 'ACK scan') { |m| o[:ack] = m }
@@ -32,9 +35,43 @@ OptionParser.new do |parser|
   parser.on('--normal [NORMAL]', 'Output normal') { |m| o[:normal] = m }
   parser.on('--ping', TrueClass, 'ping scan') { |m| o[:ping] = m }
   parser.on('--script [SCRIPT]', 'Scripts') { |m| o[:script] = m }
+  parser.on('--service', TrueClass, 'Service scan') { |m| o[:service] = m }
   parser.on('--normal [NORMAL]', 'save output as normal') { |m| o[:normal] = m }
+  parser.on('--targetfile [TARGETFILE]', 'Scan from file') { |m| o[:targetfile] = m }
+  parser.on('--extractdomains [EXREACTDOMAINS]', "Extract domains from the file. .") { |m| o[:extractdomains] = m}
   parser.on('--ip IP', 'IP') { |m| o[:ip] = m }
+
 end.parse!
+
+def extract_domains(o)
+  out =[]
+  read = File.read(o.to_s)
+  read.split("DNS Brute-force hostnames: ")[1].split("-").each do |l|
+    begin
+      subdomain = l.split("|")[1].strip.gsub("_", "").strip
+      if !out.include?(subdomain)
+        out << subdomain
+      end
+    rescue => e
+    
+    end
+  end
+    File.open("#{o}-subdomains.txt", 'w') { |f| f.write(out.join("\n")) }
+
+  out =[]
+  read = File.read(o)
+  begin
+    read.split("DNS Brute-force hostnames: ")[1].split("-").each do |l|
+        ips = l.split("-")[0].strip.split("|")[0].gsub("|", "").strip.split("\n\n#")[0]
+        if !out.include?(ips)
+          out << ips
+        end
+    end
+  rescue
+  end
+   out = out.compact
+   File.open("#{o}-ips.txt", 'w') { |f| f.write(out.join("\n")) }
+end
 
 Nmap::Command.run do |nmap|
   nmap.syn_scan      = o[:syn]
@@ -51,6 +88,13 @@ Nmap::Command.run do |nmap|
   nmap.udp_scan      = o[:udp]
   nmap.output_normal = o[:normal]
   nmap.ping          = o[:ping]
-  nmap.output_normal = o[:normal]
+  nmap.service_scan =  o[:service]
+  if !o[:targetfile].nil? 
+        nmap.target_file   =  o[:targetfile]
+  end
+end
+
+if !o[:extractdomains].nil?
+        extract_domains(o[:extractdomains])
 end
 

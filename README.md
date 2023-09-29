@@ -85,7 +85,9 @@ sudo ruby nmap.rb --ip 192.168.1.* --xmas --normal xmas.txt
 ```
 ### Extract Subdomains and IPS
 ```ruby
-ruby rmap.rb --extractdomains t.txt --dnsbrute google.com
+ruby nmap.rb --extractdomains google.com.txt
+sudo ruby nmap.rb --targetfile google.com.txt-ips.txt --ack --normal t3.txt
+sudo ruby nmap.rb --targetfile google.com.txt-ips.txt --service --normal t3.txt
 ```
 ### Wordpress
 ```ruby
