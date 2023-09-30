@@ -17,7 +17,9 @@ o = {
   "udp": false,
   "dnsbrute": false,
   "ping": false,
-  "service": false
+  "service": false,
+  "ipv6": false,
+  "os": false
 }
 
 
@@ -32,45 +34,38 @@ OptionParser.new do |parser|
   parser.on('--maimon', TrueClass, 'maimon scan') { |m| o[:maimon] = m }
   parser.on('--arp-ping', TrueClass, 'arp ping') { |m| o[:arp_ping] = m }
   parser.on('--udp', TrueClass, 'Udp scan') { |m| o[:udp] = m }
-  parser.on('--normal [NORMAL]', 'Output normal') { |m| o[:normal] = m }
   parser.on('--ping', TrueClass, 'ping scan') { |m| o[:ping] = m }
   parser.on('--script [SCRIPT]', 'Scripts') { |m| o[:script] = m }
   parser.on('--service', TrueClass, 'Service scan') { |m| o[:service] = m }
   parser.on('--normal [NORMAL]', 'save output as normal') { |m| o[:normal] = m }
   parser.on('--targetfile [TARGETFILE]', 'Scan from file') { |m| o[:targetfile] = m }
-  parser.on('--extractdomains [EXREACTDOMAINS]', "Extract domains from the file. .") { |m| o[:extractdomains] = m}
+  parser.on('--ipv6', 'Ipv6') { |m| o[:ipv6] = m }
+  parser.on('--extractdomains [EXREACTDOMAINS]', 'Extract domains from the file. .') { |m| o[:extractdomains] = m }
   parser.on('--ip IP', 'IP') { |m| o[:ip] = m }
-
+  parser.on('--os', 'OS scan') { |m| o[:os] = m }
 end.parse!
 
 def extract_domains(o)
-  out =[]
+  out = []
   read = File.read(o.to_s)
-  read.split("DNS Brute-force hostnames: ")[1].split("-").each do |l|
-    begin
-      subdomain = l.split("|")[1].strip.gsub("_", "").strip
-      if !out.include?(subdomain)
-        out << subdomain
-      end
-    rescue => e
-    
-    end
+  read.split('DNS Brute-force hostnames: ')[1].split('-').each do |l|
+    subdomain = l.split('|')[1].strip.gsub('_', '').strip
+    out << subdomain unless out.include?(subdomain)
+  rescue StandardError
   end
-    File.open("#{o}-subdomains.txt", 'w') { |f| f.write(out.join("\n")) }
+  File.open("#{o}-subdomains.txt", 'w') { |f| f.write(out.join("\n")) }
 
-  out =[]
+  out = []
   read = File.read(o)
   begin
-    read.split("DNS Brute-force hostnames: ")[1].split("-").each do |l|
-        ips = l.split("-")[0].strip.split("|")[0].gsub("|", "").strip.split("\n\n#")[0]
-        if !out.include?(ips)
-          out << ips
-        end
+    read.split('DNS Brute-force hostnames: ')[1].split('-').each do |l|
+      ips = l.split('-')[0].strip.split('|')[0].gsub('|', '').strip.split("\n\n#")[0]
+      out << ips unless out.include?(ips)
     end
-  rescue
+  rescue StandardError
   end
-   out = out.compact
-   File.open("#{o}-ips.txt", 'w') { |f| f.write(out.join("\n")) }
+  out = out.compact
+  File.open("#{o}-ips.txt", 'w') { |f| f.write(out.join("\n")) }
 end
 
 Nmap::Command.run do |nmap|
@@ -88,13 +83,10 @@ Nmap::Command.run do |nmap|
   nmap.udp_scan      = o[:udp]
   nmap.output_normal = o[:normal]
   nmap.ping          = o[:ping]
-  nmap.service_scan =  o[:service]
-  if !o[:targetfile].nil? 
-        nmap.target_file   =  o[:targetfile]
-  end
+  nmap.ipv6          = o[:ipv6]
+  nmap.service_scan  =  o[:service]
+  nmap.os_fingerprint = o[:os]
+  nmap.target_file = o[:targetfile] unless o[:targetfile].nil?
 end
 
-if !o[:extractdomains].nil?
-        extract_domains(o[:extractdomains])
-end
-
+extract_domains(o[:extractdomains]) unless o[:extractdomains].nil?

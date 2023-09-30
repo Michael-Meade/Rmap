@@ -57,6 +57,10 @@ If you are on windows use this link: https://nmap.org/download.html
 ```ruby
 ruby rmap.rb --H
 ```
+### OS fingerprint
+```
+ sudo ruby nmap.rb --ip yahoo.com --normal os_scan_yahoo.txt --os
+```
 ## Spoof Mac
 ```ruby
 sudo ruby nmap.rb --idle 127.0.0.1 --spoofmac 00:11:22:33:44:55
@@ -86,8 +90,8 @@ sudo ruby nmap.rb --ip 192.168.1.* --xmas --normal xmas.txt
 ### Extract Subdomains and IPS
 ```ruby
 ruby nmap.rb --extractdomains google.com.txt
-sudo ruby nmap.rb --targetfile google.com.txt-ips.txt --ack --normal t3.txt
-sudo ruby nmap.rb --targetfile google.com.txt-ips.txt --service --normal t3.txt
+ruby nmap.rb --script dns-brute --ip yahoo.net --normal yahoo.txt --extractdomains yahoo.txt
+ruby nmap.rb --targetfile yahoo.txt-ips.txt --normal service_scan_yahoo.txt --service
 ```
 ### Wordpress
 ```ruby
@@ -103,7 +107,7 @@ ruby nmap.rb --ip 192.168.1.* --null
 ```
 ### List scan saving output
 ```ruby
-sudo ruby rmap.rb --list 192.168.1.1/24 --normal
+sudo ruby rmap.rb --list --ip 192.168.1.1/24 --normal tttt.txt
 ```
 Requires sudo permissions
 
