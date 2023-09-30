@@ -20,7 +20,9 @@ o = {
   "service": false,
   "ipv6": false,
   "os": false,
-  "random": 10
+  "random": false,
+  "rpc": false,
+  "fragments": false
 }
 
 
@@ -43,7 +45,9 @@ OptionParser.new do |parser|
   parser.on('--ipv6', 'Ipv6') { |m| o[:ipv6] = m }
   parser.on('--extractdomains [EXREACTDOMAINS]', 'Extract domains from the file. .') { |m| o[:extractdomains] = m }
   parser.on('--ip IP', 'IP') { |m| o[:ip] = m }
-  parser.on('--os', 'OS scan') { |m| o[:os] = m }
+  parser.on('--os', TrueClass,'OS scan') { |m| o[:os] = m }
+  parser.on('--rpc', TrueClass,'RPC scan') { |m| o[:rpc] = m }
+  parser.on('--fragments', TrueClass,'Fragments the packets') { |m| o[:fragments] = m }
   parser.on('--random [RANDOM]', 'geerate random targets') { |m| o[:random] = m }
 end.parse!
 
@@ -90,6 +94,8 @@ Nmap::Command.run do |nmap|
   nmap.os_fingerprint = o[:os]
   nmap.target_file = o[:targetfile] unless o[:targetfile].nil?
   nmap.random_targets = o[:random] unless o[:random].nil?
+  nmap.rpc_scan = o[:rpc]
+  nmap.packet_fragments = o[:fragments]
 end
 
 extract_domains(o[:extractdomains]) unless o[:extractdomains].nil?
