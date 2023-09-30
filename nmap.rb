@@ -19,8 +19,8 @@ o = {
   "ping": false,
   "service": false,
   "ipv6": false,
-  "os": false, 
-  "random": nil
+  "os": false,
+  "random": 10
 }
 
 
@@ -48,7 +48,6 @@ OptionParser.new do |parser|
 end.parse!
 
 def extract_domains(o)
-  begin
   out = []
   read = File.read(o.to_s)
   read.split('DNS Brute-force hostnames: ')[1].split('-').each do |l|
