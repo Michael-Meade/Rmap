@@ -19,7 +19,8 @@ o = {
   "ping": false,
   "service": false,
   "ipv6": false,
-  "os": false
+  "os": false, 
+  "random": nil
 }
 
 
@@ -43,9 +44,11 @@ OptionParser.new do |parser|
   parser.on('--extractdomains [EXREACTDOMAINS]', 'Extract domains from the file. .') { |m| o[:extractdomains] = m }
   parser.on('--ip IP', 'IP') { |m| o[:ip] = m }
   parser.on('--os', 'OS scan') { |m| o[:os] = m }
+  parser.on('--random [RANDOM]', 'geerate random targets') { |m| o[:random] = m }
 end.parse!
 
 def extract_domains(o)
+  begin
   out = []
   read = File.read(o.to_s)
   read.split('DNS Brute-force hostnames: ')[1].split('-').each do |l|
@@ -87,6 +90,7 @@ Nmap::Command.run do |nmap|
   nmap.service_scan  =  o[:service]
   nmap.os_fingerprint = o[:os]
   nmap.target_file = o[:targetfile] unless o[:targetfile].nil?
+  nmap.random_targets = o[:random] unless o[:random].nil?
 end
 
 extract_domains(o[:extractdomains]) unless o[:extractdomains].nil?

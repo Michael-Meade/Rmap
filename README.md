@@ -93,6 +93,10 @@ ruby nmap.rb --extractdomains google.com.txt
 ruby nmap.rb --script dns-brute --ip yahoo.net --normal yahoo.txt --extractdomains yahoo.txt
 ruby nmap.rb --targetfile yahoo.txt-ips.txt --normal service_scan_yahoo.txt --service
 ```
+### Random ips
+```
+sudo ruby nmap.rb --random 10 --ack
+```
 ### Wordpress
 ```ruby
 ruby rmap.rb --wp google.com
